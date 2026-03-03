@@ -204,4 +204,88 @@
     </tr>
   </tbody>
 </table>
+<hr>
+<h3>PARCEL & LUGGAGE DETAILS</h3>
+
+<form [formGroup]="parcelForm" (ngSubmit)="saveParcel()">
+
+  <input formControlName="avgLoadingPerDay" placeholder="Avg Loading Per Day (Tonnes)">
+  <input formControlName="avgEarningsPerDay" placeholder="Avg Earnings Per Day">
+  <input formControlName="year" placeholder="Year (e.g., 2024-25)">
+  <input formControlName="totalLoading" placeholder="Total Loading (Tonnes)">
+  <input formControlName="totalEarnings" placeholder="Total Earnings">
+
+  <button type="submit">
+    {{ parcelEditId ? 'Update' : 'Save' }}
+  </button>
+
+</form>
+
+<table>
+  <thead>
+    <tr>
+      <th>Avg Loading</th>
+      <th>Avg Earnings</th>
+      <th>Year</th>
+      <th>Total Loading</th>
+      <th>Total Earnings</th>
+      <th>Actions</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr *ngFor="let item of parcelList">
+      <td>{{ item.avgLoadingPerDay }}</td>
+      <td>{{ item.avgEarningsPerDay }}</td>
+      <td>{{ item.yearlyData[0]?.year }}</td>
+      <td>{{ item.yearlyData[0]?.totalLoading }}</td>
+      <td>{{ item.yearlyData[0]?.totalEarnings }}</td>
+      <td>
+        <button (click)="editParcel(item)">Edit</button>
+        <button (click)="deleteParcel(item._id)">Delete</button>
+      </td>
+    </tr>
+  </tbody>
+</table>
+<hr>
+<h3>RETIRING ROOM DETAILS</h3>
+
+<form [formGroup]="retiringForm" (ngSubmit)="saveRetiring()">
+
+  <input formControlName="mannedBy" placeholder="Manned By">
+  <input formControlName="roomType" placeholder="Room Type (e.g., AC DBL BED)">
+  <input formControlName="rate" placeholder="Rate">
+  <input formControlName="year" placeholder="Year (e.g., 2024-25)">
+  <input formControlName="totalEarnings" placeholder="Total Earnings">
+
+  <button type="submit">
+    {{ retiringEditId ? 'Update' : 'Save' }}
+  </button>
+
+</form>
+
+<table>
+  <thead>
+    <tr>
+      <th>Manned By</th>
+      <th>Room Type</th>
+      <th>Rate</th>
+      <th>Year</th>
+      <th>Total Earnings</th>
+      <th>Actions</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr *ngFor="let item of retiringList">
+      <td>{{ item.mannedBy }}</td>
+      <td>{{ item.rooms[0]?.roomType }}</td>
+      <td>{{ item.rooms[0]?.rate }}</td>
+      <td>{{ item.yearlyEarnings[0]?.year }}</td>
+      <td>{{ item.yearlyEarnings[0]?.totalEarnings }}</td>
+      <td>
+        <button (click)="editRetiring(item)">Edit</button>
+        <button (click)="deleteRetiring(item._id)">Delete</button>
+      </td>
+    </tr>
+  </tbody>
+</table>
 </div>

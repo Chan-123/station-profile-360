@@ -5,6 +5,8 @@ import { ExpenditureService } from '../../services/expenditure';
 import { TrafficUnreservedService } from '../../services/traffic-unreserved';
 import { TrafficReservedService } from '../../services/traffic-reserved';
 import { TrafficTicketCheckingService } from '../../services/traffic-ticket-checking';
+import { TrafficParcelService } from '../../services/traffic-parcel';
+import { TrafficRetiringRoomService } from '../../services/traffic-retiring-room';
 @Component({
   selector: 'app-earnings',
   standalone: true,
@@ -49,12 +51,24 @@ export class Earnings implements OnInit {
   ticketList: any[] = [];
   ticketEditId: string | null = null;
 
+  // PARCEL
+  parcelForm!: FormGroup;
+  parcelList: any[] = [];
+  parcelEditId: string | null = null;
+
+  // RETIRING ROOM
+  retiringForm!: FormGroup;
+  retiringList: any[] = [];
+  retiringEditId: string | null = null;
+
   constructor(
     private fb: FormBuilder,
     private service: ExpenditureService,
     private unreservedService: TrafficUnreservedService,
     private reservedService: TrafficReservedService,
-    private ticketService: TrafficTicketCheckingService
+    private ticketService: TrafficTicketCheckingService,
+    private parcelService: TrafficParcelService,
+    private retiringService: TrafficRetiringRoomService
   ) {}
 
   ngOnInit() {
@@ -101,6 +115,25 @@ export class Earnings implements OnInit {
   });
 
   this.loadTicketChecking();
+
+  this.parcelForm = this.fb.group({
+  avgLoadingPerDay: [''],
+  avgEarningsPerDay: [''],
+  year: [''],
+  totalLoading: [''],
+  totalEarnings: ['']
+  });
+
+  this.loadParcel();
+  this.retiringForm = this.fb.group({
+  mannedBy: [''],
+  roomType: [''],
+  rate: [''],
+  year: [''],
+  totalEarnings: ['']
+  });
+
+  this.loadRetiring();
   }
 
   // =====================================
@@ -293,5 +326,123 @@ editTicket(item: any) {
 deleteTicket(id: string) {
   this.ticketService.delete(id)
     .subscribe(() => this.loadTicketChecking());
+}
+// ===============================
+// PARCEL METHODS
+// ===============================
+
+loadParcel() {
+  this.parcelService.getAll()
+    .subscribe(data => this.parcelList = data);
+}
+
+saveParcel() {
+
+  if (this.parcelForm.invalid) return;
+
+  const payload = {
+    avgLoadingPerDay: this.parcelForm.value.avgLoadingPerDay,
+    avgEarningsPerDay: this.parcelForm.value.avgEarningsPerDay,
+    yearlyData: [
+      {
+        year: this.parcelForm.value.year,
+        totalLoading: this.parcelForm.value.totalLoading,
+        totalEarnings: this.parcelForm.value.totalEarnings
+      }
+    ]
+  };
+
+  if (this.parcelEditId) {
+    this.parcelService.update(this.parcelEditId, payload)
+      .subscribe(() => {
+        this.loadParcel();
+        this.parcelForm.reset();
+        this.parcelEditId = null;
+      });
+  } else {
+    this.parcelService.create(payload)
+      .subscribe(() => {
+        this.loadParcel();
+        this.parcelForm.reset();
+      });
+  }
+}
+
+editParcel(item: any) {
+  this.parcelForm.patchValue({
+    avgLoadingPerDay: item.avgLoadingPerDay,
+    avgEarningsPerDay: item.avgEarningsPerDay,
+    year: item.yearlyData?.[0]?.year,
+    totalLoading: item.yearlyData?.[0]?.totalLoading,
+    totalEarnings: item.yearlyData?.[0]?.totalEarnings
+  });
+
+  this.parcelEditId = item._id;
+}
+
+deleteParcel(id: string) {
+  this.parcelService.delete(id)
+    .subscribe(() => this.loadParcel());
+}
+// ===============================
+// RETIRING ROOM METHODS
+// ===============================
+
+loadRetiring() {
+  this.retiringService.getAll()
+    .subscribe(data => this.retiringList = data);
+}
+
+saveRetiring() {
+
+  if (this.retiringForm.invalid) return;
+
+  const payload = {
+    mannedBy: this.retiringForm.value.mannedBy,
+    rooms: [
+      {
+        roomType: this.retiringForm.value.roomType,
+        rate: this.retiringForm.value.rate
+      }
+    ],
+    yearlyEarnings: [
+      {
+        year: this.retiringForm.value.year,
+        totalEarnings: this.retiringForm.value.totalEarnings
+      }
+    ]
+  };
+
+  if (this.retiringEditId) {
+    this.retiringService.update(this.retiringEditId, payload)
+      .subscribe(() => {
+        this.loadRetiring();
+        this.retiringForm.reset();
+        this.retiringEditId = null;
+      });
+  } else {
+    this.retiringService.create(payload)
+      .subscribe(() => {
+        this.loadRetiring();
+        this.retiringForm.reset();
+      });
+  }
+}
+
+editRetiring(item: any) {
+  this.retiringForm.patchValue({
+    mannedBy: item.mannedBy,
+    roomType: item.rooms?.[0]?.roomType,
+    rate: item.rooms?.[0]?.rate,
+    year: item.yearlyEarnings?.[0]?.year,
+    totalEarnings: item.yearlyEarnings?.[0]?.totalEarnings
+  });
+
+  this.retiringEditId = item._id;
+}
+
+deleteRetiring(id: string) {
+  this.retiringService.delete(id)
+    .subscribe(() => this.loadRetiring());
 }
 }
